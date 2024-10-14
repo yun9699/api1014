@@ -17,4 +17,9 @@ public class MemberEntity {
 
     private String pw;
 
+    //MemberRole emum 추가후 작성
+    private MemberRole role;
+
+
+
 }
