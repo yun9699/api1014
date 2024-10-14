@@ -35,5 +35,11 @@ public class Product {
     public void clearFile(){
         attachFiles.clear();
     }
+    public void addTage(String tag) {
+        tags.add(tag);
+    }
+    public void clearTags() {
+        tags.clear();
+    }
 }
 
