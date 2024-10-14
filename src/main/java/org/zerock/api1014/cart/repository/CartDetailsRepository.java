@@ -6,11 +6,16 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.zerock.api1014.cart.domain.CartDetails;
+import org.zerock.api1014.cart.dto.CartDetailsListDTO;
 
 public interface CartDetailsRepository extends JpaRepository<CartDetails, Long> {
 
     @Query("""
-            SELECT p, count(r), attach.fileName,  cd.qty
+            SELECT
+                new org.zerock.api1014.cart.dto.CartDetailsListDTO( 
+              p.pno, p.name, p.price,  count(r), attach.fileName,
+              cd.qty
+              )
             FROM 
                 MemberEntity m 
                 left join Cart c ON c.member = m
@@ -22,7 +27,7 @@ public interface CartDetailsRepository extends JpaRepository<CartDetails, Long> 
             and attach.ord = 0
             group by p
             """) // 상품과 리뷰의 개수, 대표사진, 수량 뽑기
-    Page<Object[]> listOfMember(@Param("email") String email, Pageable pageable);
+    Page<CartDetailsListDTO[]> listOfMember(@Param("email") String email, Pageable pageable);
 
 
 }
