@@ -1,9 +1,6 @@
 package org.zerock.api1014.product.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
@@ -11,7 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-@ToString
+@ToString(exclude = "product")
 public class Review {
 
     @Id
@@ -20,4 +17,9 @@ public class Review {
 
     private String reviewText;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Product product;
+    //하나의 리뷰는 한 상태이 관한 것이다
+    //fetch LAZY 항상 걸기
+    //연관관계 할때는 재귀호출을 막으려면 ToString exclude 하기
 }
