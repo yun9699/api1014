@@ -14,7 +14,7 @@ public class ProductSearchImpl extends QuerydslRepositorySupport implements Prod
     }
 
     @Override
-    public Page<Product> list(Product product, Pageable pageable) {
+    public Page<Product> list(Pageable pageable) {
 
         log.info("list ---------------!!");
         return null;
