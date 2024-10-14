@@ -12,6 +12,9 @@ import org.zerock.api1014.product.domain.Product;
 import org.zerock.api1014.product.domain.QAttachFile;
 import org.zerock.api1014.product.domain.QProduct;
 import org.zerock.api1014.product.domain.QReview;
+import org.zerock.api1014.product.dto.ProductListDTO;
+
+import java.util.List;
 
 @Log4j2
 public class ProductSearchImpl extends QuerydslRepositorySupport implements ProductSearch {
@@ -79,7 +82,20 @@ public class ProductSearchImpl extends QuerydslRepositorySupport implements Prod
                         attachFile.fileName
                 );
 
-        tupleQuery.fetch();
+        List<Tuple> tupleList = tupleQuery.fetch();
+
+        log.info(tupleList);
+
+        tupleList.forEach(t -> {
+            Product productObj = t.get(0, Product.class);
+            long count = t.get(1, Long.class);
+            String fileName = t.get(2, String.class);
+
+            log.info(productObj);
+            log.info(productObj.getTags());
+            log.info(count);
+            log.info(fileName);
+        });
 
         return null;
     }
