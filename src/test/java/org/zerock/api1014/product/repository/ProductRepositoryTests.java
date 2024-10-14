@@ -7,6 +7,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.zerock.api1014.common.dto.PageRequestDTO;
 
 
 @DataJpaTest
@@ -29,9 +30,8 @@ public class ProductRepositoryTests {
     @Test
     public void testList2() {
 
-        Pageable pageable = PageRequest.of(0,10);
-
-        productRepository.listByCno(1L, pageable);
+        PageRequestDTO pageRequestDTO = PageRequestDTO.builder().build();
+        productRepository.listByCno(1L, pageRequestDTO);
 
     }
 
