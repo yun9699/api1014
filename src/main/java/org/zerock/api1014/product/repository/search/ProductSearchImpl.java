@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.zerock.api1014.product.domain.Product;
+import org.zerock.api1014.product.domain.QAttachFile;
 import org.zerock.api1014.product.domain.QProduct;
 import org.zerock.api1014.product.domain.QReview;
 
@@ -25,8 +26,13 @@ public class ProductSearchImpl extends QuerydslRepositorySupport implements Prod
         QProduct product = QProduct.product;
         QReview review = QReview.review;
 
+        QAttachFile attachFile = QAttachFile.attachFile;
+
         JPQLQuery<Product> query = from(product);
         query.leftJoin(review).on(review.product.eq(product));
+        query.leftJoin(product.attachFiles, attachFile);
+
+        query.where(attachFile.ord.eq(0));
         query.groupBy(product);
 
         //페이징 처리 정렬처리
@@ -35,7 +41,8 @@ public class ProductSearchImpl extends QuerydslRepositorySupport implements Prod
         JPQLQuery<Tuple> tupleQuery =
                 query.select(
                         product,
-                        review.count()
+                        review.count(),
+                        attachFile.fileName
                 );
 
         tupleQuery.fetch();
