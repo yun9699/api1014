@@ -1,9 +1,7 @@
+// mapping 이라는 용어로도 사용한다
 package org.zerock.api1014.category.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 import org.zerock.api1014.product.domain.Product;
 
@@ -12,14 +10,16 @@ import org.zerock.api1014.product.domain.Product;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-@ToString
+@ToString(exclude = {"product", "category"})
 public class CategoryProduct {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long cpno;
 
+    @ManyToOne
     private Product product;
 
+    @ManyToOne
     private Category category;
 }
