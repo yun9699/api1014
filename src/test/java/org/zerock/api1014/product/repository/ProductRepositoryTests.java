@@ -18,11 +18,20 @@ public class ProductRepositoryTests {
     private ProductRepository productRepository;
 
     @Test
-    public void testFList1() {
+    public void testList1() {
 
         Pageable pageable = PageRequest.of(0,10);
 
         productRepository.list(pageable);
+
+    }
+
+    @Test
+    public void testList2() {
+
+        Pageable pageable = PageRequest.of(0,10);
+
+        productRepository.listByCno(1L, pageable);
 
     }
 
