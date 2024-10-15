@@ -6,5 +6,4 @@ import org.zerock.api1014.member.domain.MemberEntity;
 public interface MemberRepository extends JpaRepository<MemberEntity, String> {
 
 
-
 }

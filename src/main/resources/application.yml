@@ -32,3 +32,7 @@ org:
   zerock:
     upload:
       path: upload
+
+logging:
+  level:
+    org.springframework.security.web: TRACE

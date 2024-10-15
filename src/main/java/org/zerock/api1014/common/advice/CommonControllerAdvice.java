@@ -1,17 +1,20 @@
-package org.zerock.api1014.category.advice;
+package org.zerock.api1014.common.advice;
+
 
 import lombok.extern.log4j.Log4j2;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.zerock.api1014.common.exception.TaskException;
+
 import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
 @Log4j2
-public class CategoryControllerAdvice {
+public class CommonControllerAdvice {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<java.util.Map<String,Object>> handle(MethodArgumentNotValidException ex){
@@ -32,5 +35,13 @@ public class CategoryControllerAdvice {
         return ResponseEntity.status(400).body(map);
 
     }
+
+    @ExceptionHandler(TaskException.class)
+    public ResponseEntity<String> handle(TaskException ex){
+
+        return ResponseEntity.status(ex.getCode()).body(ex.getMessage());
+
+    }
+
 
 }
