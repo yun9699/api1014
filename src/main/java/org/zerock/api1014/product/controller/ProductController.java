@@ -20,6 +20,7 @@ import org.zerock.api1014.product.service.ProductService;
 @RequestMapping("/api/v1/product")
 @Log4j2
 @RequiredArgsConstructor
+@PreAuthorize("permitAll()")
 public class ProductController {
 
     private final ProductService productService;
