@@ -1,4 +1,4 @@
-package org.zerock.api1014.member.controller;
+package org.zerock.api1014.member.controller.advice;
 
 
 import lombok.extern.log4j.Log4j2;
