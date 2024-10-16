@@ -8,6 +8,7 @@ import org.zerock.api1014.common.dto.PageRequestDTO;
 import org.zerock.api1014.common.dto.PageResponseDTO;
 import org.zerock.api1014.common.exception.CommonExceptions;
 import org.zerock.api1014.product.dto.ProductListDTO;
+import org.zerock.api1014.product.repository.ProductRepository;
 
 @Service
 @Transactional
@@ -15,13 +16,15 @@ import org.zerock.api1014.product.dto.ProductListDTO;
 @RequiredArgsConstructor
 public class ProductService {
 
+    private final ProductRepository productRepository;
+
     public PageResponseDTO<ProductListDTO> list(PageRequestDTO pageRequestDTO) {
 
         if(pageRequestDTO.getPage() < 0) {
             throw CommonExceptions.LIST_ERROR.get();
         }
 
-        return null;
+        return productRepository.listByCno(0L, pageRequestDTO);
     }
 
 }
