@@ -3,12 +3,10 @@ package org.zerock.api1014.member.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.zerock.api1014.member.dto.MemberDTO;
 import org.zerock.api1014.member.dto.TokenRequestDTO;
 import org.zerock.api1014.member.dto.TokenResponseDTO;
@@ -60,6 +58,24 @@ public class MemberController {
 
         return ResponseEntity.ok(tokenResponseDTO);
 
+    }
+
+    //MediaType.~~~~~value 일반적인 메소트 타입만 선언할 수있어 뜻
+    //produces 한 줄 추가 한 이유 JSON으로 나온다고 보여줄려고
+    @PostMapping(value="refreshToken",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<TokenResponseDTO> refreshToken(
+            @RequestHeader("Authorization") String accessToken,
+            String refreshToken) {
+
+        //** 만일 accessToken이 없다면 혹은 RefreshToken이 없다면
+
+
+        //** accessToken  Bearer (7) 잘라낼때 문제가 발생한다면
+
+        return null;
     }
 
 }
