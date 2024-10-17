@@ -87,12 +87,22 @@ public class MemberController {
         try{
             Map<String, Object> payload = jWTUtil.validateToken(accessTokenStr);
 
-            // 바로 위의 코드가 예외가 발생한 경우 아래 두코드는 실행되지 않음
+            // 바로 위의 코드가 예외가 발생한 경우 아래 코드는 실행되지 않음
             String email = payload.get("email").toString();
-            String role = payload.get("role").toString();
+
+            TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
+            tokenResponseDTO.setAccessToken(accessTokenStr);
+            tokenResponseDTO.setEmail(email);
+            tokenResponseDTO.setRefreshToken(refreshToken);
+
+            return ResponseEntity.ok((tokenResponseDTO));
 
         }catch(ExpiredJwtException ex){
             //** 정상적으로 만료된 경우
+
+            //** 만일 Refresh Toekn이 마저 만료되었다면?
+            //구글같은 곳에서 200에러로 출력되기도 함, 만료되도 예외라고 생각은 안해서
+            //하지만 200으로 던지면 리엑트상에서 보면 햇갈리기 쉽다 -> 여기선 401에러로 표시
         }
 
         return null;
