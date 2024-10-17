@@ -2,6 +2,7 @@ package org.zerock.api1014.member.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,6 +27,12 @@ public class MemberController {
 
     private final JWTUtil jWTUtil;
 
+    @Value("${org.zerock.accessTime}")
+    private int accessTime;
+
+    @Value("${org.zerock.accessTime}")
+    private int refreshTime;
+
     @PostMapping("makeToken")
     // JSON사용하니까 RequestBody
     // ResponseEnity 응답메시지 이용 위해
@@ -43,11 +50,11 @@ public class MemberController {
                 "email",memberDTO.getEmail(),
                 "role", memberDTO.getRole() );
 
-        String accesToken = jWTUtil.createToken(claimMap,30);
-        String refreshToken = jWTUtil.createToken(claimMap,360);
+        String accessToken = jWTUtil.createToken(claimMap,accessTime);
+        String refreshToken = jWTUtil.createToken(claimMap,refreshTime);
 
         TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
-        tokenResponseDTO.setAccessToken(accesToken);
+        tokenResponseDTO.setAccessToken(accessToken);
         tokenResponseDTO.setRefreshToken(refreshToken);
         tokenResponseDTO.setEmail(memberDTO.getEmail());
 

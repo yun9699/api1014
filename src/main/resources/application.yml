@@ -30,6 +30,9 @@ spring:
 
 org:
   zerock:
+    # 값 밖에 안들어감(연산은 안됨)
+    accessTime: 60
+    refreshTime: 10080
     upload:
       path: upload
 
