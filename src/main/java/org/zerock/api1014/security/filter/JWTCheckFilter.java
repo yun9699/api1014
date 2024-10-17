@@ -39,6 +39,10 @@ public class JWTCheckFilter extends OncePerRequestFilter {
         if(uri.equals("/api/v1/member/makeToken")){
             return true;
         }
+        // 이 경로도 체크하지말아라
+        if(uri.equals("/api/v1/member/refreshToken")){
+            return true;
+        }
 
         return false;
     }

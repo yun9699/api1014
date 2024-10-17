@@ -31,8 +31,11 @@ public class MemberController {
     @Value("${org.zerock.accessTime}")
     private int accessTime;
 
-    @Value("${org.zerock.accessTime}")
+    @Value("${org.zerock.refreshTime}")
     private int refreshTime;
+
+    @Value("${org.zerock.alwaysNew}")
+    private boolean alwaysNew;
 
     @PostMapping("makeToken")
     // JSON사용하니까 RequestBody
@@ -103,9 +106,31 @@ public class MemberController {
             //** 만일 Refresh Toekn이 마저 만료되었다면?
             //구글같은 곳에서 200에러로 출력되기도 함, 만료되도 예외라고 생각은 안해서
             //하지만 200으로 던지면 리엑트상에서 보면 햇갈리기 쉽다 -> 여기선 401에러로 표시
+            try{
+                Map<String, Object> payload = jWTUtil.validateToken(accessTokenStr);
+                String email = payload.get("email").toString();
+                String role = payload.get("role").toString();
+                String newAccessToken = null;
+                String newRefreshToken = null;
+
+                if(alwaysNew) {
+                    Map<String, Object> claimMap = Map.of("email", email, "role", role);
+                    newAccessToken = jWTUtil.createToken(claimMap,accessTime);
+                    newRefreshToken = jWTUtil.createToken(claimMap,refreshTime);
+                }
+                TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
+                tokenResponseDTO.setAccessToken(newAccessToken);
+                tokenResponseDTO.setRefreshToken(newRefreshToken);
+                tokenResponseDTO.setEmail(email);
+
+                return ResponseEntity.ok(tokenResponseDTO);
+
+            }catch (ExpiredJwtException ex2){
+                throw MemberExceptions.ACCESSTOKEN_TOO_SHORT.get();
+            }
+
         }
 
-        return null;
     }
 
 }
