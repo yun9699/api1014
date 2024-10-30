@@ -31,7 +31,7 @@ spring:
 org:
   zerock:
     # 값 밖에 안들어감(연산은 안됨)
-    accessTime: 3
+    accessTime: 5
     refreshTime: 10
     alwaysNew: true
     upload:

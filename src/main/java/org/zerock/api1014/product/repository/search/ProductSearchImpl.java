@@ -2,13 +2,13 @@ package org.zerock.api1014.product.repository.search;
 
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.JPQLQuery;
+import com.querydsl.jpa.impl.JPAQuery;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
-import org.zerock.api1014.category.domain.QCategory;
 import org.zerock.api1014.category.domain.QCategoryProduct;
 import org.zerock.api1014.common.dto.PageRequestDTO;
 import org.zerock.api1014.common.dto.PageResponseDTO;
@@ -31,7 +31,7 @@ public class ProductSearchImpl extends QuerydslRepositorySupport implements Prod
     @Override
     public Page<Product> list(Pageable pageable) {
 
-        log.info("list ---------------!!");
+        log.info("-------------------list-----------");
 
         QProduct product = QProduct.product;
         QReview review = QReview.review;
@@ -57,6 +57,9 @@ public class ProductSearchImpl extends QuerydslRepositorySupport implements Prod
 
         tupleQuery.fetch();
 
+
+
+
         return null;
     }
 
@@ -64,9 +67,11 @@ public class ProductSearchImpl extends QuerydslRepositorySupport implements Prod
     public PageResponseDTO<ProductListDTO> listByCno(Long cno, PageRequestDTO pageRequestDTO) {
 
         Pageable pageable =
-                PageRequest.of(pageRequestDTO.getPage() - 1,
+                PageRequest.of(
+                        pageRequestDTO.getPage() -1,
                         pageRequestDTO.getSize(),
-                        Sort.by("pno").descending());
+                        Sort.by("pno").descending()
+                );
 
         QProduct product = QProduct.product;
         QReview review = QReview.review;
@@ -97,11 +102,10 @@ public class ProductSearchImpl extends QuerydslRepositorySupport implements Prod
         log.info(tupleList);
 
         if(tupleList.isEmpty()) {
-
             return null;
         }
 
-        List<ProductListDTO> dtoLIst = new ArrayList<>();
+        List<ProductListDTO> dtoList = new ArrayList<>();
 
         tupleList.forEach(t -> {
             Product productObj = t.get(0, Product.class);
@@ -116,13 +120,15 @@ public class ProductSearchImpl extends QuerydslRepositorySupport implements Prod
                     .tags(productObj.getTags().stream().toList())
                     .build();
 
-            dtoLIst.add(dto);
+
+            dtoList.add(dto);
+
         });
 
         long total = tupleQuery.fetchCount();
 
         return PageResponseDTO.<ProductListDTO>withAll()
-                .dtoList(dtoLIst)
+                .dtoList(dtoList)
                 .totalCount(total)
                 .pageRequestDTO(pageRequestDTO)
                 .build();

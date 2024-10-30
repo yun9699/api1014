@@ -69,7 +69,7 @@ public class MemberController {
     //MediaType.~~~~~value 일반적인 메소트 타입만 선언할 수있어 뜻
     //produces 한 줄 추가 한 이유 JSON으로 나온다고 보여줄려고
     @PostMapping(value="refreshToken",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<TokenResponseDTO> refreshToken(
@@ -82,7 +82,7 @@ public class MemberController {
         }
 
         //** accessToken  Bearer (7) 잘라낼때 문제가 발생한다면
-        if(accessToken.startsWith("Bearer ")) {
+        if(!accessToken.startsWith("Bearer ")) {
             throw MemberExceptions.ACCESSTOKEN_TOO_SHORT.get();
         }
         String accessTokenStr = accessToken.substring("Bearer ".length());
@@ -107,28 +107,27 @@ public class MemberController {
             //구글같은 곳에서 200에러로 출력되기도 함, 만료되도 예외라고 생각은 안해서
             //하지만 200으로 던지면 리엑트상에서 보면 햇갈리기 쉽다 -> 여기선 401에러로 표시
             try{
-                Map<String, Object> payload = jWTUtil.validateToken(accessTokenStr);
+                Map<String,Object> payload = jWTUtil.validateToken(refreshToken);
                 String email = payload.get("email").toString();
                 String role = payload.get("role").toString();
                 String newAccessToken = null;
-                String newRefreshToken = null;
+                String newRrefreshToken = null;
 
                 if(alwaysNew) {
                     Map<String, Object> claimMap = Map.of("email", email, "role", role);
                     newAccessToken = jWTUtil.createToken(claimMap,accessTime);
-                    newRefreshToken = jWTUtil.createToken(claimMap,refreshTime);
+                    newRrefreshToken = jWTUtil.createToken(claimMap,refreshTime);
                 }
                 TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
                 tokenResponseDTO.setAccessToken(newAccessToken);
-                tokenResponseDTO.setRefreshToken(newRefreshToken);
+                tokenResponseDTO.setRefreshToken(newRrefreshToken);
                 tokenResponseDTO.setEmail(email);
 
                 return ResponseEntity.ok(tokenResponseDTO);
 
-            }catch (ExpiredJwtException ex2){
-                throw MemberExceptions.ACCESSTOKEN_TOO_SHORT.get();
+            }catch(ExpiredJwtException ex2){
+                throw MemberExceptions.REQUIRE_SIGN_IN.get();
             }
-
         }
 
     }
