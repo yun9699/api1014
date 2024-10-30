@@ -137,8 +137,21 @@ public class MemberController {
 
         log.info("kakao access token: " + accessToken);
 
-        memberService.authKakao(accessToken);
+        MemberDTO memberDTO = memberService.authKakao(accessToken);
 
-        return null;
+        log.info(memberDTO);
+
+        Map<String, Object> claimMap =
+                Map.of("email", memberDTO.getEmail(), "role", memberDTO.getRole());
+
+        String access_Token = jwtUtil.createToken(claimMap, accessTime);
+        String refreshToken = jwtUtil.createToken(claimMap, refreshTime);
+
+        TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
+        tokenResponseDTO.setAccessToken(access_Token);
+        tokenResponseDTO.setRefreshToken(refreshToken);
+        tokenResponseDTO.setEmail(memberDTO.getEmail());
+
+        return ResponseEntity.ok(tokenResponseDTO);
     }
 }
