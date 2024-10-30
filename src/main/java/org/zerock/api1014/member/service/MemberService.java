@@ -43,23 +43,25 @@ public class MemberService {
 
         boolean match = passwordEncoder.matches(password, enPw);
 
-        if( !match) {
-            throw MemberExceptions.BAD_AUTH.get();
+        if(!match) {
+            throw CommonExceptions.READ_ERROR.get();
         }
+
         MemberDTO memberDTO = new MemberDTO();
         memberDTO.setEmail(email);
         memberDTO.setPw(enPw);
         memberDTO.setRole(member.getRole().toString());
+
         return memberDTO;
     }
 
-    public MemberDTO authkakao(String accessToken){
+    public MemberDTO authKakao(String accessToken) {
 
-        log.info("--------------accessToken-------------");
+        log.info("----------authKakao-------");
 
         String email = getEmailFromKakaoAccessToken(accessToken);
 
-        log.info("email: " + email);
+        log.info("email : " + email);
 
         return null;
     }
@@ -105,9 +107,6 @@ public class MemberService {
         log.info("kakaoAccount: " + kakaoAccount);
         return kakaoAccount.get("email");
     }
-
-
-
 
 
 }

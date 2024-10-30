@@ -21,12 +21,10 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/member")
 @Log4j2
-@RequiredArgsConstructor
 public class MemberController {
 
     private final MemberService memberService;
-
-    private final JWTUtil jWTUtil;
+    private final JWTUtil jwtUtil;
 
     @Value("${org.zerock.accessTime}")
     private int accessTime;
@@ -37,25 +35,28 @@ public class MemberController {
     @Value("${org.zerock.alwaysNew}")
     private boolean alwaysNew;
 
+    public MemberController(MemberService memberService, JWTUtil jwtUtil) {
+        this.memberService = memberService;
+        this.jwtUtil = jwtUtil;
+    }
+
     @PostMapping("makeToken")
-    // JSON사용하니까 RequestBody
-    // ResponseEnity 응답메시지 이용 위해
-    public ResponseEntity<TokenResponseDTO> makeToken(@RequestBody @Validated TokenRequestDTO tokenRequestDTO) {
+    public ResponseEntity<TokenResponseDTO> makeToken(
+            @RequestBody @Validated TokenRequestDTO tokenRequestDTO) {
 
-        log.info("Making token");
-        log.info("------------------------");
+        log.info("===============================");
+        log.info("Make Token");
 
-        MemberDTO memberDTO = memberService.authenticate(
-                tokenRequestDTO.getEmail(),
-                tokenRequestDTO.getPw());
+        MemberDTO memberDTO =
+                memberService.authenticate(tokenRequestDTO.getEmail(), tokenRequestDTO.getPw());
 
         log.info(memberDTO);
-        Map<String, Object> claimMap = Map.of(
-                "email",memberDTO.getEmail(),
-                "role", memberDTO.getRole() );
 
-        String accessToken = jWTUtil.createToken(claimMap,accessTime);
-        String refreshToken = jWTUtil.createToken(claimMap,refreshTime);
+        Map<String, Object> claimMap =
+                Map.of("email", memberDTO.getEmail(), "role", memberDTO.getRole());
+
+        String accessToken = jwtUtil.createToken(claimMap, accessTime);
+        String refreshToken = jwtUtil.createToken(claimMap, refreshTime);
 
         TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
         tokenResponseDTO.setAccessToken(accessToken);
@@ -63,34 +64,32 @@ public class MemberController {
         tokenResponseDTO.setEmail(memberDTO.getEmail());
 
         return ResponseEntity.ok(tokenResponseDTO);
-
     }
 
-    //MediaType.~~~~~value 일반적인 메소트 타입만 선언할 수있어 뜻
-    //produces 한 줄 추가 한 이유 JSON으로 나온다고 보여줄려고
-    @PostMapping(value="refreshToken",
+    @PostMapping(value ="refreshToken",
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TokenResponseDTO> refreshToken(
-            @RequestHeader("Authorization") String accessToken,
-            String refreshToken) {
+            @RequestHeader("Authorization") String accessToken, String refreshToken) {
 
-        //** 만일 accessToken이 없다면 혹은 RefreshToken이 없다면
+        //만약 accessToken 이 없다면 혹은 refreshToken 이 없다면
         if(accessToken == null || refreshToken == null) {
             throw MemberExceptions.TOKEN_NOT_ENOUGH.get();
         }
 
-        //** accessToken  Bearer (7) 잘라낼때 문제가 발생한다면
+        //accessToken 에서 Bearer(공백포함 7) 잘라낼 때 문제가 발생한다면
         if(!accessToken.startsWith("Bearer ")) {
+
             throw MemberExceptions.ACCESSTOKEN_TOO_SHORT.get();
         }
-        String accessTokenStr = accessToken.substring("Bearer ".length());
-        //**AccessToken의 만료 여부 체크
-        try{
-            Map<String, Object> payload = jWTUtil.validateToken(accessTokenStr);
 
-            // 바로 위의 코드가 예외가 발생한 경우 아래 코드는 실행되지 않음
+        String accessTokenStr = accessToken.substring("Bearer ".length());
+
+        //AccessToken 의 만료 여부 체크
+        try{
+
+            Map<String, Object> payload = jwtUtil.validateToken(accessTokenStr);
+
             String email = payload.get("email").toString();
 
             TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
@@ -98,38 +97,48 @@ public class MemberController {
             tokenResponseDTO.setEmail(email);
             tokenResponseDTO.setRefreshToken(refreshToken);
 
-            return ResponseEntity.ok((tokenResponseDTO));
-
+            return ResponseEntity.ok(tokenResponseDTO);
         }catch(ExpiredJwtException ex){
-            //** 정상적으로 만료된 경우
 
-            //** 만일 Refresh Toekn이 마저 만료되었다면?
-            //구글같은 곳에서 200에러로 출력되기도 함, 만료되도 예외라고 생각은 안해서
-            //하지만 200으로 던지면 리엑트상에서 보면 햇갈리기 쉽다 -> 여기선 401에러로 표시
-            try{
-                Map<String,Object> payload = jWTUtil.validateToken(refreshToken);
+            //정상적으로 만료된 경우
+
+            //만약 RefreshToken 까지 만료되었다면
+            try {
+
+                Map<String, Object> payload = jwtUtil.validateToken(refreshToken);
+
                 String email = payload.get("email").toString();
                 String role = payload.get("role").toString();
                 String newAccessToken = null;
-                String newRrefreshToken = null;
+                String newRefreshToken = null;
 
-                if(alwaysNew) {
+                if(alwaysNew){
+
                     Map<String, Object> claimMap = Map.of("email", email, "role", role);
-                    newAccessToken = jWTUtil.createToken(claimMap,accessTime);
-                    newRrefreshToken = jWTUtil.createToken(claimMap,refreshTime);
+                    newAccessToken = jwtUtil.createToken(claimMap, accessTime);
+                    newRefreshToken = jwtUtil.createToken(claimMap, refreshTime);
                 }
+
                 TokenResponseDTO tokenResponseDTO = new TokenResponseDTO();
                 tokenResponseDTO.setAccessToken(newAccessToken);
-                tokenResponseDTO.setRefreshToken(newRrefreshToken);
+                tokenResponseDTO.setRefreshToken(newRefreshToken);
                 tokenResponseDTO.setEmail(email);
 
                 return ResponseEntity.ok(tokenResponseDTO);
+            }catch(ExpiredJwtException ex2) {
 
-            }catch(ExpiredJwtException ex2){
                 throw MemberExceptions.REQUIRE_SIGN_IN.get();
             }
         }
-
     }
 
+    @RequestMapping("kakao")
+    public ResponseEntity<TokenResponseDTO> kakaoToken(String accessToken) {
+
+        log.info("kakao access token: " + accessToken);
+
+        memberService.authKakao(accessToken);
+
+        return null;
+    }
 }

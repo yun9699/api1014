@@ -44,6 +44,10 @@ public class JWTCheckFilter extends OncePerRequestFilter {
             return true;
         }
 
+        if(uri.equals("/api/v1/member/kakao")){
+            return true;
+        }
+
         return false;
     }
 
